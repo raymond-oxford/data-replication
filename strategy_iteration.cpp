@@ -424,10 +424,11 @@ int main() {
   cin.tie(nullptr);
 
   // Example usage:
-  // Read N p q from stdin and build the parameterized game.
-  int N, p, q;
-  if (!(cin >> N >> p >> q)) {
-    cerr << "Usage: provide N p q on stdin.\n";
+  // Read p q from stdin and build the parameterized game.
+  int N = 20;
+  int p, q;
+  if (!(cin >> p >> q)) {
+    cerr << "Usage: provide p q on stdin.\n";
     return 1;
   }
 
