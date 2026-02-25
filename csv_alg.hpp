@@ -216,16 +216,16 @@ private:
       next_P = {pred, pred1};
     }
 
-    int next_dist, next_w;
+    int next_dist, next_w, one_w, both_w;
     if (location == 0) {
       next_dist = std::min(lamb, dist + time);
-      int one_w = time;
-      int both_w = std::min(time + lamb, work + 2 * time);
+      one_w = time;
+      both_w = std::min(time + lamb - 1, work + 2 * time); // changed this line from time + lamb
       next_w = both_w - one_w;
     } else {
       next_dist = std::min(time, lamb);
-      int one_w = std::min(time + lamb, work + time);
-      int both_w = std::min(work + 2 * time, time + lamb);
+      one_w = std::min(time + lamb - 1, work + time); // changed this line from time + lamb
+      both_w = std::min(work + 2 * time, time + lamb - 1); // changed this line from time + lamb
       next_w = both_w - one_w;
     }
 
@@ -238,7 +238,7 @@ private:
         online = time;
         next_C = 0;
       } else {
-        online = time + lamb;
+        online = time + lamb + 1; // changed this line from time + lamb
         next_C = 1;
       }
     } else {
@@ -246,7 +246,7 @@ private:
         assert(dist - work >= 0);
         bool stay = get_stay_from_csv(dist, work);
         if ((location ^ stay) != 0) {
-          online = time + lamb;
+          online = time + lamb + 1; // changed this line from time + lamb
           next_C = 1;
         } else {
           online = time;
@@ -269,7 +269,7 @@ private:
           online = time + static_cast<int>(csv_y * lamb);
           next_C = 0;
           if (location == 1) {
-            online += lamb;
+            online += lamb + 1; // changed this line from lamb to lamb + 1
             next_C = 1;
           }
         }
@@ -277,16 +277,6 @@ private:
         online = 2 * time;
         next_C = 1;
       }
-    }
-
-    int opt_curr = (config == 0) ? 0 : work;
-    int one_w = 0, both_w = 0;
-    if (location == 0) {
-      one_w = time;
-      both_w = std::min(time + lamb, work + 2 * time);
-    } else {
-      one_w = std::min(time + lamb, work + time);
-      both_w = std::min(work + 2 * time, time + lamb);
     }
 
     int opt = one_w;
