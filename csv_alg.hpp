@@ -139,7 +139,7 @@ public:
 
     if (bot_pred) {
       int limit = lamb - curr.get_dist() + 1;
-      for (int time = 1; time < limit; ++time) {
+      for (int time = 0; time < limit; ++time) {
         requests.emplace_back(time, 1, 0);
         requests.emplace_back(time, 1, 1);
         if (top_pred) {
@@ -149,13 +149,13 @@ public:
       }
     } else {
       if (top_pred) {
-        for (int time = 1; time <= lamb; ++time) {
+        for (int time = 0; time <= lamb; ++time) {
           requests.emplace_back(time, 0, 0);
           requests.emplace_back(time, 0, 1);
         }
         int start_time =
             std::max(lamb - curr.get_dist(),
-                     1); // changed this line from lambda - curr.get_dist() + 1
+                     0); // changed this line from lambda - curr.get_dist() + 1
         for (int time = start_time; time <= lamb + 1;
              ++time) { // changed this line from < lamb
           requests.emplace_back(time, 1, 0);
@@ -169,7 +169,7 @@ public:
 
         int start_time =
             std::max(lamb - curr.get_dist(),
-                     1); // changed this line from lambda - curr.get_dist() + 1
+                     0); // changed this line from lambda - curr.get_dist() + 1
         for (int time = start_time; time <= lamb + 1; ++time) {
           requests.emplace_back(time, 1, 0);
           requests.emplace_back(time, 1, 1);
@@ -197,9 +197,11 @@ private:
 
   std::pair<std::pair<int, int>, NodeType>
   choose_config(const NodeType &curr, int time, int location, int pred) const {
-    assert(time > 0);
+    // assert(time > 0);
+    assert (time >= 0);
     assert(curr.get_work() >= 0 && curr.get_work() <= lamb);
-    assert(curr.get_dist() >= 1 && curr.get_dist() <= lamb + 1);
+    // assert(curr.get_dist() >= 1 && curr.get_dist() <= lamb + 1);
+    assert(curr.get_dist() >= 0 && curr.get_dist() <= lamb);
 
     int config = curr.get_config();
     int dist = curr.get_dist();

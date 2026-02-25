@@ -33,11 +33,13 @@ struct Node {
         assert(pred1 == 0 || pred1 == 1);
         assert(pred2 == 0 || pred2 == 1);
         // assert(dist >= 1 && dist <= Lambda + 1);
-        assert(dist >= 1 && dist <= Lambda);
+        // assert(dist >= 1 && dist <= Lambda);
+        assert(dist >= 0 && dist <= Lambda);
         assert(work >= 0 && work <= Lambda);
 
         code = 0;
-        code |= (dist - 1);
+        // code |= (dist - 1);
+        code |= dist;
         code |= (work << L);
         code |= (pred1 << (2 * L));
         code |= (pred2 << (2 * L + 1));
@@ -48,7 +50,8 @@ struct Node {
     int get_config() const { return (code >> (2 * L + 2)) & 1; }
     int get_pred1()  const { return (code >> (2 * L)) & 1; }
     int get_pred2()  const { return (code >> (2 * L + 1)) & 1; }
-    int get_dist()   const { return (code & ((1 << L) - 1)) + 1; }
+    // int get_dist()   const { return (code & ((1 << L) - 1)) + 1; }
+    int get_dist() const { return code & ((1 << L) - 1); }
     int get_work()   const { return (code >> L) & ((1 << L) - 1); }
     bool is_valid() const {return (code & INVALID_NODE_CODE) == 0;}
 
