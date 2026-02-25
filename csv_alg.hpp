@@ -10,6 +10,8 @@
 #include <tuple>
 #include <vector>
 
+#define ENABLE_POLICY_SNAPPING
+
 struct PolicyKey {
   std::string mode;
   double d;
@@ -68,6 +70,15 @@ static void load_policy_csv(const std::string &filename) {
   }
 }
 
+constexpr int CSV_GRID = 500; // policy discretization
+inline double snap_to_csv_grid(double x) {
+#ifdef ENABLE_POLICY_SNAPPING
+  return std::round(x * CSV_GRID) / CSV_GRID;
+#else
+  return x;
+#endif
+}
+
 template <int Lambda> class CSVAlgorithm : public Algorithm<Lambda> {
 public:
   using NodeType = Node<Lambda>;
@@ -115,11 +126,15 @@ public:
   bool get_stay_from_csv(int dist, int work) const {
     double d = static_cast<double>(dist) / lamb;
     if (d > 1) {
+      std::cerr << "d > 1";
       d = 1;
     }
-    d = round6(d);
+
     double w = static_cast<double>(work) / lamb;
-    w = round6(w);
+
+    d = snap_to_csv_grid(d);
+    w = snap_to_csv_grid(w);
+
     PolicyKey key{"LTP", d, w};
     auto it = policy_table.find(key);
     if (it == policy_table.end()) {
@@ -129,6 +144,24 @@ public:
     }
     return it->second.action == "bottom";
   }
+
+  // bool get_stay_from_csv(int dist, int work) const {
+  //   double d = static_cast<double>(dist) / lamb;
+  //   if (d > 1) {
+  //     d = 1;
+  //   }
+  //   d = round6(d);
+  //   double w = static_cast<double>(work) / lamb;
+  //   w = round6(w);
+  //   PolicyKey key{"LTP", d, w};
+  //   auto it = policy_table.find(key);
+  //   if (it == policy_table.end()) {
+  //     std::ostringstream oss;
+  //     oss << "LTP policy not found for d=" << d << ", w=" << w;
+  //     throw std::runtime_error(oss.str());
+  //   }
+  //   return it->second.action == "bottom";
+  // }
 
   std::vector<std::tuple<int, int, int>>
   next_requests(const NodeType &curr) const {
@@ -185,9 +218,12 @@ private:
     if (d > 1) {
       d = 1;
     }
-    d = round6(d);
     double w = static_cast<double>(work) / lamb;
-    w = round6(w);
+
+    // Project runtime (1/lamb) grid into CSV (1/CSV_GRID) grid
+    d = snap_to_csv_grid(d);
+    w = snap_to_csv_grid(w);
+
     PolicyKey key{"STP", d, w};
     auto it = policy_table.find(key);
     if (it == policy_table.end())
@@ -195,10 +231,25 @@ private:
     return it->second.y_val;
   }
 
+  // double get_y_from_csv(int dist, int work) const {
+  //   double d = static_cast<double>(dist) / lamb;
+  //   if (d > 1) {
+  //     d = 1;
+  //   }
+  //   d = round6(d);
+  //   double w = static_cast<double>(work) / lamb;
+  //   w = round6(w);
+  //   PolicyKey key{"STP", d, w};
+  //   auto it = policy_table.find(key);
+  //   if (it == policy_table.end())
+  //     throw std::runtime_error("STP policy not found");
+  //   return it->second.y_val;
+  // }
+
   std::pair<std::pair<int, int>, NodeType>
   choose_config(const NodeType &curr, int time, int location, int pred) const {
     // assert(time > 0);
-    assert (time >= 0);
+    assert(time >= 0);
     assert(curr.get_work() >= 0 && curr.get_work() <= lamb);
     // assert(curr.get_dist() >= 1 && curr.get_dist() <= lamb + 1);
     assert(curr.get_dist() >= 0 && curr.get_dist() <= lamb);
@@ -220,12 +271,15 @@ private:
     if (location == 0) {
       next_dist = std::min(lamb, dist + time);
       one_w = time;
-      both_w = std::min(time + lamb - 1, work + 2 * time); // changed this line from time + lamb
+      both_w = std::min(time + lamb - 1,
+                        work + 2 * time); // changed this line from time + lamb
       next_w = both_w - one_w;
     } else {
       next_dist = std::min(time, lamb);
-      one_w = std::min(time + lamb - 1, work + time); // changed this line from time + lamb
-      both_w = std::min(work + 2 * time, time + lamb - 1); // changed this line from time + lamb
+      one_w = std::min(time + lamb - 1,
+                       work + time); // changed this line from time + lamb
+      both_w = std::min(work + 2 * time,
+                        time + lamb - 1); // changed this line from time + lamb
       next_w = both_w - one_w;
     }
 

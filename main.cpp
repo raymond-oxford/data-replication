@@ -8,11 +8,13 @@
 
 
 int find_worst_cycle() {
-    constexpr int Lambda = 500;
+    constexpr int Lambda = 2000;
     // int alpha = 410;
     // int beta = 265;
-    int alpha = 2048;
-    int beta = 1322;
+    // int alpha = 2048;
+    // int beta = 1322;
+    int alpha = 31;
+    int beta = 20;
 
     CSVAlgorithm<Lambda> alg("policy-501.csv");
     auto roots = alg.initial_nodes_small();

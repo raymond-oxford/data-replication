@@ -605,10 +605,10 @@ int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
 
-  int N = 20;
-  long double c_lo = 17.0L / 11.0L;
-  long double c_hi = 19.0L / 12.0L;
-  int Q = 5000; // evaluation denominator; increase for finer resolution
+  int N = 40;
+  long double c_lo = 7747.0L / 5000.0L;
+  long double c_hi = 39.0L / 25.0L;
+  int Q = 10000; // evaluation denominator; increase for finer resolution
   int maxIter = 60;
 
   auto res_pair = find_largest_negative_ratio_by_p_verbose(N, c_lo, c_hi, Q, maxIter);
