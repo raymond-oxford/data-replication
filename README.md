@@ -93,4 +93,4 @@ make LAMBDA=5000
 ./solver ../lower-bound-program-y-0/policy.csv --csv-grid 1000 --bound-mode -o bf-potential.csv
 ```
 
-The policy used by the paper is `lower-bound-program-y-0/policy-1000.csv`. The Bellman-Ford potential used by the paper is `upper-bound-program/bf-5000-all.csv` (found only in the Supplementary Material, not in this repository). Its smoothness constant `L` is obtained by running `upper-bound-program/findL.py`.
+The policy used by the paper is `lower-bound-program-y-0/policy-1000.csv`. Upon obtaining a Bellman-Ford vertex potential, its smoothness constant `L` can be obtained by running `upper-bound-program/findL.py`.
