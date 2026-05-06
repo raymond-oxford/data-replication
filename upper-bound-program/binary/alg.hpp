@@ -164,7 +164,7 @@ private:
         int next_C = 0;
 
         if (config == 0) {
-            assert(pred2 == 0);
+            // assert(pred2 == 0);
             if (location == 0) {
                 online = time;
                 next_C = 0;

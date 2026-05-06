@@ -25,6 +25,7 @@ make LAMBDA=1000        # build ./solver with N=1000
 | `policy.csv` | (optional) policy produced by the lower-bound program. If omitted, defaults to the 5/3-consistent algorithm of Zuo et al. (2024). |
 | `--csv-grid n` | Discretization N used by the lower-bound program when producing `policy.csv`. Must match that run's N. (default: 50) |
 | `--bound-mode` | Use adjusted transfer costs (1+Δ for ALG, 1−Δ for OPT), corresponding to the *adjusted upper-bound program* of the paper. Required for a valid bound in the continuous-time model. |
+| `-o <file>` | Write the Bellman–Ford vertex potential to `<file>` (CSV). |
 
 `LAMBDA` is a compile-time constant controlling the size of the state graph; `--csv-grid` is a run-time argument describing the input policy.
 
@@ -81,13 +82,15 @@ make
 ./mpg_solver 1000 3 2
 ```
 
-**Upper bound** (adjusted costs, Δ = 1/2000), using a policy from the y=0 version:
+**Upper bound** (adjusted costs, Δ = 1/5000), using a policy from the y=0 version:
 ```bash
 cd lower-bound-program-y-0
 make
 ./mpg_solver 1000 3 2          # produces policy.csv
 
 cd ../upper-bound-program
-make LAMBDA=2000
-./solver ../lower-bound-program-y-0/policy.csv --csv-grid 1000 --bound-mode
+make LAMBDA=5000
+./solver ../lower-bound-program-y-0/policy.csv --csv-grid 1000 --bound-mode -o bf-potential.csv
 ```
+
+The policy used by the paper is `lower-bound-program-y-0/policy-1000.csv`. The Bellman-Ford potential used by the paper is `upper-bound-program/bf-5000-all.csv`. Its smoothness constant `L` is obtained by running `upper-bound-program/findL.py`.

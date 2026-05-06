@@ -73,9 +73,12 @@ inline bool atomic_relax_max(std::atomic<int>& slot, int new_val) {
 
 // ---------------------------------------------------------------------------
 // find_negative_cycle  (minimize, forward transition)
+// Returns {cycle, distances}.  When a cycle is found, distances is empty
+// (intermediate state).  When no cycle is found, distances holds the final
+// converged BF distances and cycle is empty.
 // ---------------------------------------------------------------------------
 template<typename N>
-std::vector<CycleStep<N>> find_negative_cycle(
+std::pair<std::vector<CycleStep<N>>, std::vector<int>> find_negative_cycle(
     const std::vector<N>& roots,
     const Algorithm<N>& alg,
     int alpha,
@@ -118,6 +121,13 @@ std::vector<CycleStep<N>> find_negative_cycle(
         in_queue[c].store(1, std::memory_order_relaxed);
         frontier.push_back(root);
     }
+
+    auto extract_dist = [&]() {
+        std::vector<int> result(max_code);
+        for (int i = 0; i < max_code; ++i)
+            result[i] = dist[i].load(std::memory_order_relaxed);
+        return result;
+    };
 
     std::vector<std::vector<N>> local_next(nthreads);
     N cycle_head = N();
@@ -220,12 +230,12 @@ std::vector<CycleStep<N>> find_negative_cycle(
                 if (--guard < 0) break;
             } while (cur != cycle_head);
             std::reverse(cycle.begin(), cycle.end());
-            return cycle;
+            return {cycle, {}};
         }
 
         size_check = frontier.size();
     }
-    return {};
+    return {{}, extract_dist()};
 }
 
 // ---------------------------------------------------------------------------

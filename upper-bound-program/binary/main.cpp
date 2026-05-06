@@ -25,7 +25,7 @@ int find_worst_cycle(Algorithm<N>& alg,
     std::vector<CycleStep<N>> prev_cycle;
 
     while (true) {
-        std::vector<CycleStep<N>> cycle = find_negative_cycle(roots, alg, alpha, beta);
+        auto [cycle, cached_dist] = find_negative_cycle(roots, alg, alpha, beta);
 
         if (!cycle.empty()) {
             std::cout << "Negative cycle found:\n";
@@ -42,10 +42,15 @@ int find_worst_cycle(Algorithm<N>& alg,
             }
             if (!save_path.empty()) {
                 auto reachable = bfs_reachable_nodes(roots, alg);
-                auto bf_roots = all_roots ? reachable : roots;
-                std::vector<int> d = reverse
-                    ? compute_distances_reverse(bf_roots, alg, alpha, beta)
-                    : compute_distances(bf_roots, alg, alpha, beta);
+                std::vector<int> d;
+                if (!reverse && !all_roots) {
+                    d = std::move(cached_dist);
+                } else {
+                    auto bf_roots = all_roots ? reachable : roots;
+                    d = reverse
+                        ? compute_distances_reverse(bf_roots, alg, alpha, beta)
+                        : compute_distances(bf_roots, alg, alpha, beta);
+                }
                 save_distances_csv(d, reachable, Lambda, beta, save_path, reverse);
                 std::cout << "Distances saved to " << save_path << "\n";
             }
@@ -62,7 +67,8 @@ int main(int argc, char* argv[]) {
     bool reverse = false;
     bool all_roots = false;
     bool bound_mode = false;
-    bool use_naive = false;
+    // bool use_naive = false;
+    bool use_naive = true;
     int csv_grid = 50;
 
     for (int i = 1; i < argc; ++i) {

@@ -76,7 +76,20 @@ public:
     }
 
     std::vector<Node<Lambda>> initial_nodes() const override {
-        return { Node<Lambda>(0, Lambda, 0, 0, Lambda) };
+        // return { Node<Lambda>(0, Lambda, 0, 0, Lambda) };
+        std::vector<NodeType> nodes;
+        for (int c = 0; c <= 1; c++) {
+            for (int d = 0; d <= Lambda; d++) {
+                for (int w = 0; w <= d; w++) {
+                    for (int pred1 = 0; pred1 <= 1; pred1++) {
+                        for (int pred2 = 0; pred2 <= 1; pred2++) {
+                            nodes.emplace_back(c, d, pred1, pred2, w);
+                        }
+                    }
+                }
+            }
+        }
+        return nodes;
     }
 
     bool get_stay(int dist, int work) const override {
